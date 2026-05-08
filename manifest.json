@@ -1,0 +1,25 @@
+{
+  "name": "Wanda & Mattia",
+  "short_name": "W&M",
+  "description": "Web app PWA del matrimonio di Wanda & Mattia",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#fdf8f4",
+  "theme_color": "#e8845a",
+  "orientation": "portrait-primary",
+  "lang": "it-IT",
+  "icons": [
+    {
+      "src": "./assets/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./assets/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

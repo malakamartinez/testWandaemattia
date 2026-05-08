@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Wanda & Mattia - Wedding Day App</title>
+  <meta name="description" content="App di supporto al giorno del matrimonio: programma, mappe, media live, gioco e admin.">
+  <meta name="theme-color" content="#e8845a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Wanda & Mattia">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" href="./assets/icon-192.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./assets/icon-192.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,700;1,500&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <script defer src="https://unpkg.com/lucide@latest"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <style>
+    :root{--color-bg:#fdf8f4;--color-surface:#fef3ec;--color-primary:#e8845a;--color-primary-dark:#c4623a;--color-accent:#1a3a5c;--color-gold:#c9a96e;--color-text:#2c1a0e;--color-text-muted:#7a6a5a;--color-divider:#e8d8c8;--font-display:'Cormorant Garamond',Georgia,serif;--font-body:'DM Sans',system-ui,sans-serif}
+    *{box-sizing:border-box}
+    html,body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);scroll-behavior:smooth}
+    a{color:inherit}
+    .skip{position:absolute;left:8px;top:-60px;background:var(--color-accent);color:#fff;padding:10px 14px;border-radius:8px;z-index:99}.skip:focus{top:8px}
+    .wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+    section{padding:72px 0;border-top:1px solid var(--color-divider);content-visibility:auto;contain-intrinsic-size:1px 700px}
+    h1,h2,h3{font-family:var(--font-display);margin:0 0 12px;line-height:1.12}
+    h2{font-size:clamp(32px,5vw,56px)}
+    p{margin:0 0 10px;line-height:1.6;color:var(--color-text-muted)}
+    .reveal{opacity:0;transform:translateY(20px);transition:opacity .55s ease,transform .55s ease}
+    .reveal.is-visible{opacity:1;transform:none}
+    .hero{min-height:100svh;display:grid;place-items:center;text-align:center;position:relative;overflow:hidden;background:var(--color-bg)}
+    .hero::before{content:"";position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E")}
+    .hero .wrap{position:relative;z-index:1}
+    .hero h1{font-size:clamp(58px,12vw,132px);font-style:italic;letter-spacing:.22em;animation:closeSpace 2s ease forwards}
+    @keyframes closeSpace{to{letter-spacing:.03em}}
+    .hero-sub{letter-spacing:.1em;text-transform:uppercase;font-size:14px}
+    .count{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;max-width:680px;margin:26px auto 0}
+    .flip{padding:16px;border:1px solid var(--color-divider);border-radius:14px;background:#fff}
+    .flip .v{font-family:var(--font-display);font-size:36px;color:var(--color-accent)}
+    .flip .l{font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+    .grid2{display:grid;gap:16px}
+    .panel{background:#fff;border:1px solid var(--color-divider);border-radius:18px;padding:18px;box-shadow:0 10px 24px rgba(44,26,14,.06)}
+    .timeline{position:relative;padding-left:22px}.timeline:before{content:"";position:absolute;left:6px;top:5px;bottom:5px;width:1px;background:var(--color-divider)}
+    .event{margin:0 0 20px;padding-left:18px}.event h3{font-size:25px;margin:0 0 5px}
+    .chips{display:flex;flex-wrap:wrap;gap:10px}
+    .btn{min-height:44px;display:inline-flex;align-items:center;gap:8px;border:1px solid var(--color-primary);padding:10px 16px;border-radius:999px;background:transparent;font-weight:700;cursor:pointer;transition:.24s}
+    .btn:hover,.btn:focus-visible{background:var(--color-primary);color:#fff;transform:translateY(-1px)}
+    .btn.secondary{border-color:var(--color-divider)}
+    .btn.upload-cta{
+      background:var(--color-primary);
+      color:#fff;
+      border-color:var(--color-primary-dark);
+      box-shadow:0 10px 22px rgba(232,132,90,.28);
+      letter-spacing:.02em;
+    }
+    .btn.upload-cta:hover,.btn.upload-cta:focus-visible{
+      background:var(--color-primary-dark);
+      color:#fff;
+      transform:translateY(-2px) scale(1.01);
+      box-shadow:0 14px 26px rgba(196,98,58,.32);
+    }
+    :focus-visible{outline:2px solid var(--color-accent);outline-offset:3px}
+    .media-grid{column-count:2;column-gap:12px}
+    .media-item{break-inside:avoid;margin:0 0 12px;border-radius:14px;overflow:hidden;background:#fff;border:1px solid var(--color-divider);animation:fadeIn .35s ease}
+    @keyframes fadeIn{from{opacity:0;transform:scale(.98)}to{opacity:1;transform:none}}
+    .media-item img,.media-item video{width:100%;display:block}
+    .meta{padding:8px 10px;font-size:12px;color:var(--color-text-muted)}
+    .media-actions{display:flex;gap:8px;padding:0 10px 10px}
+    .mini{min-height:36px;padding:7px 12px;font-size:12px}
+    .mission{display:grid;gap:8px;padding:14px;border:1px solid var(--color-divider);border-radius:12px;background:#fff}
+    .file-native{position:absolute;left:-9999px;opacity:0;pointer-events:none}
+    .file-picker{display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:9px 14px;border-radius:999px;border:1px solid var(--color-accent);background:#fff;color:var(--color-accent);font-weight:700;cursor:pointer;transition:.22s}
+    .file-picker:hover,.file-picker:focus-visible{background:var(--color-accent);color:#fff;transform:translateY(-1px)}
+    .file-name{font-size:12px;color:var(--color-text-muted);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:middle}
+    .score{font-family:var(--font-display);font-size:42px;color:var(--color-primary)}
+    .inputs{display:grid;gap:10px}
+    .inputs input,.inputs select{width:100%;min-height:44px;padding:10px 12px;border:1px solid var(--color-divider);border-radius:10px;font:inherit;background:#fff}
+    .hidden{display:none!important}
+    .scene{background:var(--color-surface)}
+    .sticky-nav{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--color-divider);display:flex;justify-content:space-around;padding:8px calc(10px + env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) calc(10px + env(safe-area-inset-left));z-index:30}
+    .sticky-nav a{min-width:44px;min-height:44px;display:grid;place-items:center;text-decoration:none}
+    .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--color-accent);color:#fff;padding:9px 14px;border-radius:999px;opacity:0;pointer-events:none;transition:.25s;z-index:40}
+    .toast.show{opacity:1}
+    .modal{position:fixed;inset:0;background:rgba(20,20,20,.76);display:none;align-items:center;justify-content:center;padding:18px;z-index:60}
+    .modal.open{display:flex}
+    .modal-card{background:#111;border-radius:14px;max-width:980px;width:100%;padding:12px}
+    .modal-card img,.modal-card video{width:100%;max-height:78vh;object-fit:contain;border-radius:10px}
+    .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:10px}
+    canvas#confetti{position:fixed;inset:0;pointer-events:none;z-index:25}
+    footer{padding:56px 0 96px}
+    @media (min-width:860px){.grid2{grid-template-columns:1fr 1fr}.media-grid{column-count:3}.sticky-nav{display:none}}
+    @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Vai al contenuto principale</a>
+  <canvas id="confetti" aria-hidden="true"></canvas>
+
+  <header class="hero" id="home">
+    <div class="wrap">
+      <h1>Wanda &amp; Mattia</h1>
+      <p class="hero-sub">27 Giugno 2026 · Otranto &amp; Lecce</p>
+      <div class="count" aria-label="Countdown matrimonio">
+        <div class="flip"><div class="v" id="d">00</div><div class="l">Giorni</div></div>
+        <div class="flip"><div class="v" id="h">00</div><div class="l">Ore</div></div>
+        <div class="flip"><div class="v" id="m">00</div><div class="l">Minuti</div></div>
+        <div class="flip"><div class="v" id="s">00</div><div class="l">Secondi</div></div>
+      </div>
+    </div>
+  </header>
+
+  <nav class="sticky-nav" aria-label="Navigazione mobile">
+    <a href="#home" aria-label="Home"><i data-lucide="house"></i></a>
+    <a href="#giornata" aria-label="Giornata"><i data-lucide="calendar-heart"></i></a>
+    <a href="#media-live" aria-label="Media live"><i data-lucide="image-plus"></i></a>
+    <a href="#game" aria-label="Game"><i data-lucide="trophy"></i></a>
+  </nav>
+
+  <main id="main">
+    <section id="giornata" class="reveal">
+      <div class="wrap">
+        <div>
+          <h2>La Giornata</h2>
+          <div class="timeline" id="timeline"></div>
+        </div>
+        <div class="panel">
+          <h3 style="font-size:30px">Mappe &amp; Calendario</h3>
+          <p>Cerimonia: Cattedrale di S. Maria Annunziata, Otranto.<br>Ricevimento: Torre del Parco 1419, Lecce.</p>
+          <div class="chips">
+            <a class="btn" href="#" id="calBtn" target="_blank" rel="noreferrer">Salva in Calendario</a>
+            <a class="btn secondary" href="https://maps.app.goo.gl/pheKGPVfrGwq3vyUA" target="_blank" rel="noreferrer">Naviga Otranto</a>
+            <a class="btn secondary" href="https://maps.app.goo.gl/42CuhwXYunEffkmN9" target="_blank" rel="noreferrer">Naviga Torre del Parco</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="regalo" class="scene reveal">
+      <div class="wrap grid2">
+        <div class="panel">
+          <h2>Regalo</h2>
+          <p>Se desideri fare un regalo, puoi usare i riferimenti qui sotto.</p>
+          <p><strong>IBAN:</strong> <span id="ibanTxt">IT58L0623011330000048582642</span></p>
+          <p><strong>Destinatario:</strong> <span id="beneficiaryTxt">Mattia Eleftheriou / Wanda Desideria Genovese</span></p>
+          <div class="chips">
+            <button class="btn" id="copyIban">Copia IBAN</button>
+            <button class="btn secondary" id="copyBeneficiary">Copia Destinatario</button>
+            <a class="btn secondary" href="https://linktr.ee/WandaMattia" target="_blank" rel="noreferrer">Link per maggiori info</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="media-live" class="reveal">
+      <div class="wrap">
+        <h2>Foto &amp; Video Live</h2>
+        <p>Carica media recenti (ultimi 7 giorni) e guarda il feed in tempo reale.</p>
+        <div class="chips">
+          <label class="btn upload-cta" for="mediaInput">Carica foto o video</label>
+          <input id="mediaInput" type="file" accept="image/*,video/*" capture="environment" multiple hidden>
+          <button class="btn secondary" id="downloadAllMedia">Scarica tutto</button>
+          <button class="btn secondary" id="refreshFeed">Aggiorna feed</button>
+        </div>
+        <div class="media-grid" id="mediaGrid"></div>
+      </div>
+    </section>
+
+    <section id="game" class="scene reveal">
+      <div class="wrap">
+        <h2>FantaSposi Game</h2>
+        <div class="panel inputs" id="gameAccess">
+          <strong>Accesso Gioco</strong>
+          <input id="gameCode" placeholder="Codice sblocco">
+          <input id="playerName" placeholder="Nome giocatore">
+          <select id="playerGender" aria-label="Sesso giocatore">
+            <option value="">Seleziona sesso</option>
+            <option value="donna">Donna</option>
+            <option value="uomo">Uomo</option>
+          </select>
+          <button class="btn" id="unlockGame">Entra nel gioco</button>
+          <p id="teamInfo"></p>
+        </div>
+        <div class="panel">
+          <p>Punteggio: <span class="score" id="score">0</span></p>
+        </div>
+        <div class="inputs" id="missions"></div>
+        <div class="panel" style="margin-top:14px">
+          <h3 style="font-size:30px">Leaderboard</h3>
+          <button class="btn" id="saveScore">Salva punteggio</button>
+          <ol id="leader"></ol>
+        </div>
+      </div>
+    </section>
+
+    <section id="admin" class="reveal">
+      <div class="wrap">
+        <h2>Admin</h2>
+        <div class="panel inputs">
+          <input id="adminCode" placeholder="Codice admin">
+          <button class="btn" id="unlockAdmin">Login admin</button>
+        </div>
+        <div id="adminPanel" class="hidden" style="margin-top:14px"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="scene">
+    <div class="wrap">
+      <h2>Aggiornamenti live del giorno</h2>
+      <p><a href="#home">Home</a> · <a href="#giornata">Giornata</a> · <a href="#media-live">Media</a> · <a href="#game">Game</a> · <a href="#admin">Admin</a></p>
+    </div>
+  </footer>
+  <div class="modal" id="mediaModal" aria-hidden="true">
+    <div class="modal-card">
+      <div id="mediaModalBody"></div>
+      <div class="modal-actions">
+        <button class="btn secondary" id="downloadSingleMedia">Scarica</button>
+        <button class="btn" id="closeMediaModal">Chiudi</button>
+      </div>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+
+  <script>
+    window.APP={events:[["15:30","Cerimonia - Basilica di Otranto"],["19:00","Aperitivo"],["20:30","Cena"],["23:00","Festa"]],gameMissions:[["Foto con gli sposi",20],["Momento romantico",15],["Ballo con sconosciuto",10],["Selfie di gruppo",10],["Brindisi creativo",10],["Video augurio",15],["Dettaglio pesca",10],["Reel pista",10],["Foto vintage",10],["Applauso finale",10]],gameCode:"si27062026",adminCode:"admin27062026",maxMediaAgeDays:7,maxProofMB:25};
+    const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s);
+    const MEDIA_KEY="wm_media_v3",STORE_KEY="wm_game_store_v1",CURRENT_PLAYER_KEY="wm_current_player_v1",ADMIN_AUTH_KEY="wm_admin_auth_v1";
+    const toast=t=>{const el=$("#toast");el.textContent=t;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),1800)};
+    let selectedMedia=null;
+    if("serviceWorker" in navigator) window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js"));
+    window.addEventListener("DOMContentLoaded",()=>{cleanupLegacyStorage();lucide.createIcons();initCountdown();initReveal();initDay();initGift();initCalendar();initMedia();initGame();initAdmin();initModal();setInterval(()=>syncUi(false),5000);});
+    window.addEventListener("storage",()=>syncUi(true));
+
+    function cleanupLegacyStorage(){["wm_photos_v1","wm_audio_v1","wm_hero_photo_v1","wm_hero_video_v1","wm_game_v1","wm_game_v2","wm_game_v3","wm_game_v4"].forEach(k=>localStorage.removeItem(k));}
+    function syncUi(includeGame){renderMedia();renderLeaderboard();renderAdminPanel();if(includeGame)renderCurrentPlayerState();}
+    function initCountdown(){const t=new Date("2026-06-27T15:30:00+02:00").getTime();setInterval(()=>{const d=Math.max(0,t-Date.now()),v=[Math.floor(d/864e5),Math.floor(d/36e5)%24,Math.floor(d/6e4)%60,Math.floor(d/1e3)%60];["d","h","m","s"].forEach((id,i)=>$("#"+id).textContent=String(v[i]).padStart(2,"0"));},1000)}
+    function initReveal(){const io=new IntersectionObserver((es)=>es.forEach(e=>e.isIntersecting&&e.target.classList.add("is-visible")),{threshold:.16});$$(".reveal").forEach(el=>io.observe(el))}
+    function initDay(){const t=$("#timeline");window.APP.events.forEach(([time,txt])=>{const e=document.createElement("article");e.className="event";e.innerHTML=`<h3>${time}</h3><p>${txt}</p>`;t.appendChild(e)})}
+    function initGift(){$("#copyIban").onclick=()=>copyText($("#ibanTxt").textContent.trim(),"IBAN copiato");$("#copyBeneficiary").onclick=()=>copyText($("#beneficiaryTxt").textContent.trim(),"Destinatario copiato")}
+    async function copyText(v,m){try{await navigator.clipboard.writeText(v);toast(m)}catch{toast("Copia non riuscita")}}
+    function initCalendar(){const s="20260627T133000Z",e="20260628T000000Z",text=encodeURIComponent("Matrimonio Wanda & Mattia"),details=encodeURIComponent("Cerimonia a Otranto e ricevimento a Lecce"),loc=encodeURIComponent("Basilica di Otranto / Torre del Parco 1419, Lecce");$("#calBtn").href=`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&dates=${s}/${e}&details=${details}&location=${loc}`}
+
+    function loadMedia(){return JSON.parse(localStorage.getItem(MEDIA_KEY)||"[]")}
+    function saveMedia(v){try{localStorage.setItem(MEDIA_KEY,JSON.stringify(v));return true;}catch{return false;}}
+    function isRecent(file){return Date.now()-file.lastModified<=window.APP.maxMediaAgeDays*24*60*60*1000}
+    async function toDataUrl(file){return new Promise((r,j)=>{const f=new FileReader();f.onload=()=>r(f.result);f.onerror=j;f.readAsDataURL(file)})}
+    function dataUrlToBlob(dataUrl){const [meta,b64]=dataUrl.split(",");const mime=(meta.match(/data:(.*?);base64/)||[])[1]||"application/octet-stream";const bytes=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));return new Blob([bytes],{type:mime})}
+    function downloadDataUrl(dataUrl,name){const blob=dataUrlToBlob(dataUrl);const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href)}
+    function renderMedia(){const media=loadMedia().sort((a,b)=>b.ts-a.ts),grid=$("#mediaGrid");grid.innerHTML=media.map((m,idx)=>`<article class="media-item">${m.type.startsWith("video/")?`<video controls preload="metadata" src="${m.data}"></video>`:`<img src="${m.data}" alt="Media ${idx+1}" loading="lazy">`}<div class="meta">${new Date(m.ts).toLocaleString("it-IT")} · ${m.uploader||"ospite"} · ${m.type}</div><div class="media-actions"><button class="btn secondary mini" data-view="${m.id}">Apri</button><button class="btn mini" data-dl="${m.id}">Scarica</button></div></article>`).join("");grid.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>openMediaModal(b.dataset.view));grid.querySelectorAll("[data-dl]").forEach(b=>{const item=media.find(x=>x.id===b.dataset.dl);if(item)b.onclick=()=>downloadDataUrl(item.data,item.name||`media-${item.id}`);});}
+    function initMedia(){const input=$("#mediaInput");input.addEventListener("change",async(e)=>{const files=[...(e.target.files||[])];if(!files.length)return;const onlyImages=files.every(f=>f.type.startsWith("image/"));const onlyVideos=files.every(f=>f.type.startsWith("video/"));const confirmMsg=onlyImages?"Sei sicuro di voler caricare la foto?":onlyVideos?"Sei sicuro di voler caricare il video?":"Sei sicuro di voler caricare la foto?";if(!window.confirm(confirmMsg)){input.value="";return;}const media=loadMedia(),me=getCurrentPlayer();let added=0;for(const file of files){if(!(file.type.startsWith("image/")||file.type.startsWith("video/")))continue;if(!isRecent(file)){toast(`Scartato ${file.name}: oltre 7 giorni`);continue;}try{media.push({id:crypto.randomUUID(),name:file.name,type:file.type,ts:Date.now(),lastModified:file.lastModified,uploader:me?me.name:"ospite",data:await toDataUrl(file)});added++;}catch{toast(`Errore durante il caricamento di ${file.name}`);}}if(!saveMedia(media))toast("Caricamento non riuscito: spazio locale insufficiente");else{renderMedia();toast(added?`${added} media caricati`:"Nessun file valido caricato");}input.value="";});$("#refreshFeed").onclick=renderMedia;$("#downloadAllMedia").onclick=async()=>{const media=loadMedia();if(!media.length)return toast("Nessun media da scaricare");const zip=new JSZip();media.forEach((m,i)=>{const ext=(m.type.split("/")[1]||"bin").split(";")[0];zip.file(`${String(i+1).padStart(3,"0")}-${m.name||"media"}.${ext}`,dataUrlToBlob(m.data));});const blob=await zip.generateAsync({type:"blob"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="wedding-media-live.zip";a.click();URL.revokeObjectURL(a.href);};renderMedia();}
+    function initModal(){$("#closeMediaModal").onclick=closeMediaModal;$("#downloadSingleMedia").onclick=()=>{if(selectedMedia)downloadDataUrl(selectedMedia.data,selectedMedia.name||`media-${selectedMedia.id}`)};$("#mediaModal").onclick=e=>{if(e.target.id==="mediaModal")closeMediaModal();};}
+    function openMediaModal(id){const item=loadMedia().find(x=>x.id===id);if(!item)return;selectedMedia=item;$("#mediaModalBody").innerHTML=item.type.startsWith("video/")?`<video controls autoplay src="${item.data}"></video>`:`<img src="${item.data}" alt="${item.name||"Media"}">`;$("#mediaModal").classList.add("open");$("#mediaModal").setAttribute("aria-hidden","false");}
+    function closeMediaModal(){$("#mediaModal").classList.remove("open");$("#mediaModal").setAttribute("aria-hidden","true");selectedMedia=null;}
+
+    function loadStore(){return JSON.parse(localStorage.getItem(STORE_KEY)||'{"players":{},"submissions":[]}' )}
+    function saveStore(s){try{localStorage.setItem(STORE_KEY,JSON.stringify(s));return true;}catch{return false;}}
+    function getCurrentPlayerKey(){return localStorage.getItem(CURRENT_PLAYER_KEY)||""}
+    function setCurrentPlayerKey(k){localStorage.setItem(CURRENT_PLAYER_KEY,k)}
+    function normalizeName(n){return n.trim().toLowerCase().replace(/\s+/g," ")}
+    function getCurrentPlayer(){const store=loadStore(),k=getCurrentPlayerKey();return k&&store.players[k]?store.players[k]:null}
+    async function sha256(file){const b=await file.arrayBuffer();const h=await crypto.subtle.digest("SHA-256",b);return [...new Uint8Array(h)].map(x=>x.toString(16).padStart(2,"0")).join("")}
+
+    function initGame(){$("#unlockGame").onclick=unlockOrResumePlayer;$("#saveScore").onclick=()=>{const p=getCurrentPlayer();if(!p)return toast("Accedi prima al gioco");toast("Punteggio gia sincronizzato in tempo reale");};renderCurrentPlayerState();renderLeaderboard();}
+    function unlockOrResumePlayer(){const code=$("#gameCode").value.trim(),name=$("#playerName").value.trim(),gender=$("#playerGender").value;if(code!==window.APP.gameCode)return toast("Codice sblocco non valido");if(!name)return toast("Inserisci nome");if(!gender)return toast("Seleziona sesso");const store=loadStore(),key=normalizeName(name),team=gender==="donna"?"Team Sposo 🌿":"Team Sposa 💐";if(!store.players[key])store.players[key]={key,name,gender,team,score:0,completedMissionIds:[],createdAt:Date.now()};else{store.players[key].gender=gender;store.players[key].team=team;store.players[key].name=name;}if(!saveStore(store))return toast("Memoria piena: impossibile salvare il profilo");setCurrentPlayerKey(key);renderCurrentPlayerState();renderLeaderboard();toast(`Accesso confermato: ${team}`);}
+    function renderCurrentPlayerState(){
+      const store=loadStore(),k=getCurrentPlayerKey(),p=k?store.players[k]:null,missions=$("#missions"),score=$("#score"),teamInfo=$("#teamInfo");
+      missions.innerHTML="";
+      if(!p){
+        score.textContent="0";
+        teamInfo.textContent="";
+        missions.innerHTML='<div class="panel"><p>Sblocca il gioco con codice, nome e sesso.</p></div>';
+        return;
+      }
+      score.textContent=String(p.score);
+      teamInfo.textContent=`Giocatore attivo: ${p.name} · ${p.team}`;
+      window.APP.gameMissions.forEach((m,idx)=>{
+        const done=p.completedMissionIds.includes(idx);
+        const pending=store.submissions.find(s=>s.playerKey===p.key&&s.missionIdx===idx&&s.status==="pending");
+        const row=document.createElement("article");
+        row.className="mission";
+        row.innerHTML=`<strong>${m[0]} (+${m[1]})</strong><p class="meta">${done?"Missione approvata":pending?"Prova inviata, in attesa admin":"Carica prova per inviare missione"}</p><div class="chips"><input class="proofFile file-native" type="file" accept="image/*,video/*" ${done?"disabled":""}><button type="button" class="file-picker">${done?"File bloccato":"Scegli file"}</button><span class="file-name">Nessun file</span><button class="btn ${done?"secondary":""}" ${done?"disabled":""}>${done?"Completata":"Invia prova"}</button></div>`;
+        const fileInput=row.querySelector(".proofFile");
+        const pickBtn=row.querySelector(".file-picker");
+        const fileName=row.querySelector(".file-name");
+        const submitBtn=row.querySelector(".btn");
+
+        pickBtn.onclick=()=>{
+          if(done) return;
+          fileInput.click();
+        };
+        fileInput.addEventListener("change",()=>{
+          const f=fileInput.files?.[0];
+          fileName.textContent=f?`${f.name} (${Math.round(f.size/1024)} KB)`:"Nessun file";
+        });
+
+        submitBtn.onclick=async()=>{
+          const file=fileInput.files?.[0];
+          if(!file) return toast("Seleziona prima un file");
+          if(file.size>window.APP.maxProofMB*1024*1024) return toast(`File troppo pesante (max ${window.APP.maxProofMB}MB)`);
+          if(!isRecent(file)) return toast("Validi solo media ultimi 7 giorni");
+          const fresh=loadStore(),player=fresh.players[p.key];
+          if(!player) return toast("Giocatore non trovato");
+          if(player.completedMissionIds.includes(idx)) return toast("Missione gia completata");
+          const existingPending=fresh.submissions.find(s=>s.playerKey===p.key&&s.missionIdx===idx&&s.status==="pending");
+          if(existingPending) return toast("Esiste gia una prova in revisione per questa missione");
+          try{
+            const data=await toDataUrl(file);
+            const mediaList=loadMedia();
+            const mediaId=crypto.randomUUID();
+            mediaList.push({id:mediaId,name:file.name,type:file.type,ts:Date.now(),lastModified:file.lastModified,uploader:player.name,data});
+            if(!saveMedia(mediaList)) throw new Error("quota-media");
+            fresh.submissions.push({id:crypto.randomUUID(),playerKey:p.key,playerName:player.name,missionIdx:idx,missionName:m[0],points:m[1],status:"pending",ts:Date.now(),type:file.type,size:file.size,hash:await sha256(file),mediaId});
+            if(!saveStore(fresh)) throw new Error("quota-store");
+            renderCurrentPlayerState();
+            renderAdminPanel();
+            renderMedia();
+            toast("Prova inviata, in attesa admin");
+          }catch{
+            toast("Upload non riuscito: memoria locale piena. Scarica/elimina media vecchi.");
+          }
+        };
+        missions.appendChild(row);
+      });
+    }
+    function renderLeaderboard(){const store=loadStore();const list=Object.values(store.players).sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name));$("#leader").innerHTML=list.map(p=>`<li>${p.name} · ${p.team} · ${p.score} pt</li>`).join("");}
+
+    function initAdmin(){$("#unlockAdmin").onclick=()=>{const code=$("#adminCode").value.trim();if(code!==window.APP.adminCode)return toast("Codice admin non valido");localStorage.setItem(ADMIN_AUTH_KEY,"1");renderAdminPanel();toast("Admin attivo");};renderAdminPanel();}
+    function adminLogged(){return localStorage.getItem(ADMIN_AUTH_KEY)==="1"}
+    function renderAdminPanel(){const panel=$("#adminPanel");if(!adminLogged()){panel.classList.add("hidden");panel.innerHTML="";return;}const store=loadStore(),media=loadMedia();panel.classList.remove("hidden");const rows=store.submissions.filter(s=>s.status==="pending").sort((a,b)=>a.ts-b.ts);if(!rows.length){panel.innerHTML='<div class="panel"><p>Nessuna prova in attesa.</p></div>';return;}panel.innerHTML=rows.map(s=>{const m=media.find(x=>x.id===s.mediaId);const preview=m?(m.type.startsWith("video/")?`<video controls src="${m.data}" style="width:100%;border-radius:10px"></video>`:`<img src="${m.data}" alt="Prova" style="width:100%;border-radius:10px">`):"<p class='meta'>Anteprima non disponibile</p>";return `<article class="panel"><h3 style="font-size:24px">${s.playerName} · ${s.missionName}</h3><p class="meta">${new Date(s.ts).toLocaleString("it-IT")} · ${s.type} · ${(s.size/1024).toFixed(1)} KB · hash ${s.hash.slice(0,12)}...</p>${preview}<div class="chips" style="margin-top:8px"><button class="btn" data-approve="${s.id}">Approva</button><button class="btn secondary" data-reject="${s.id}">Rifiuta</button></div></article>`;}).join("");panel.querySelectorAll("[data-approve]").forEach(b=>b.onclick=()=>adminDecision(b.dataset.approve,true));panel.querySelectorAll("[data-reject]").forEach(b=>b.onclick=()=>adminDecision(b.dataset.reject,false));}
+    function adminDecision(submissionId,approved){const store=loadStore(),sub=store.submissions.find(s=>s.id===submissionId);if(!sub||sub.status!=="pending")return;sub.status=approved?"approved":"rejected";sub.reviewedAt=Date.now();const player=store.players[sub.playerKey];if(approved&&player&&!player.completedMissionIds.includes(sub.missionIdx)){player.completedMissionIds.push(sub.missionIdx);player.score+=sub.points;confetti();}saveStore(store);renderAdminPanel();renderLeaderboard();renderCurrentPlayerState();toast(approved?"Prova approvata":"Prova rifiutata");}
+    function confetti(){const c=$("#confetti"),x=c.getContext("2d");c.width=innerWidth;c.height=innerHeight;const p=[...Array(90)].map(()=>({x:Math.random()*c.width,y:-20,vx:-2+Math.random()*4,vy:2+Math.random()*4,s:4+Math.random()*5,a:Math.random()*Math.PI}));let f=0;(function d(){x.clearRect(0,0,c.width,c.height);p.forEach(k=>{k.x+=k.vx;k.y+=k.vy;k.a+=.05;x.save();x.translate(k.x,k.y);x.rotate(k.a);x.fillStyle=["#e8845a","#1a3a5c","#c9a96e"][Math.floor(Math.random()*3)];x.fillRect(-k.s/2,-k.s/2,k.s,k.s);x.restore()});if(++f<120)requestAnimationFrame(d);else x.clearRect(0,0,c.width,c.height)})()}
+  </script>
+</body>
+</html>
