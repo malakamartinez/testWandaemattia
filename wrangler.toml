@@ -1,0 +1,7 @@
+name = "wanda-mattia-ap"
+compatibility_date = "2026-05-11"
+compatibility_flags = ["nodejs_compat"]
+
+[[kv_namespaces]]
+binding = "LIVE"
+id = "3691ab46f89a4dfcaf2b218d4e5c2b45"
