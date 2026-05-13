@@ -1,9 +1,7 @@
 name = "wanda-mattia-ap"
 compatibility_date = "2026-05-11"
 compatibility_flags = ["nodejs_compat"]
-
-[assets]
-directory = "./public"
+pages_build_output_dir = "./public"
 
 [[kv_namespaces]]
 binding = "LIVE"
