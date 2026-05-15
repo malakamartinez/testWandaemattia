@@ -1,10 +1,11 @@
-const CACHE_NAME = "wanda-mattia-pwa-v2";
+const CACHE_NAME = "wanda-mattia-pwa-v9-wm-build-meta";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./manifest.json",
   "./assets/icon-192.svg",
-  "./assets/icon-512.svg"
+  "./assets/icon-512.svg",
+  "./assets/hero-logo.svg"
 ];
 
 self.addEventListener("install", (event) => {
@@ -31,9 +32,13 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
   const url = new URL(event.request.url);
+  if (url.pathname.startsWith("/api/")) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
   if (url.pathname.endsWith("/index.html") || url.pathname === "/" || url.pathname === "") {
     event.respondWith(
-      fetch(event.request)
+      fetch(event.request, { cache: "no-store" })
         .then((response) => {
           const cloned = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, cloned));
