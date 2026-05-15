@@ -6,3 +6,7 @@ pages_build_output_dir = "./public"
 [[kv_namespaces]]
 binding = "LIVE"
 id = "3691ab46f89a4dfcaf2b218d4e5c2b45"
+
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "wanda-mattia-media"

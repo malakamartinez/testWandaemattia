@@ -1,4 +1,4 @@
-const CACHE_NAME = "wanda-mattia-pwa-v9-wm-build-meta";
+const CACHE_NAME = "wanda-mattia-pwa-v10-cloud-album";
 const APP_SHELL = [
   "./",
   "./index.html",
