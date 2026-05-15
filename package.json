@@ -1,0 +1,9 @@
+{
+  "name": "wanda-mattia-wedding",
+  "private": true,
+  "scripts": {
+    "deploy": "bash scripts/deploy.sh",
+    "pages:deploy": "npx --yes wrangler@4.90.1 pages deploy . --project-name=wanda-mattia-ap --branch=main --commit-dirty=true",
+    "pages:dev": "npx --yes wrangler@4.90.1 pages dev . --project-name=wanda-mattia-ap"
+  }
+}

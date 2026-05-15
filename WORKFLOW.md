@@ -11,17 +11,26 @@ Modificare **solo** file sotto `~/testWandaemattia/public/` (e `functions/` alla
 
 **Non** usare `.cursor/projects/.../wanda-mattia-wedding` (cartella interna Cursor): non è collegata al deploy.
 
-## Dopo ogni modifica
+## Deploy automatico
 
 ```bash
 cd ~/testWandaemattia
-git status
-git add -A
-git commit -m "descrizione"
-git push origin main
+npm run deploy
 ```
 
-Verifica online: sorgente pagina contiene `wm-build` e hero con `hero-logo.svg`.
+Fa `git push origin main` e, se hai `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` in shell, anche `wrangler pages deploy .` (produzione `main`).
+
+**Importante:** il deploy deve partire dalla **root del repo** (`.`), non solo da `./public`, altrimenti le **Functions** (`/api/live`, upload R2) non vengono pubblicate.
+
+Hook Cursor (opzionale): `.cursor/hooks.json` esegue `scripts/deploy.sh` a fine task agente.
+
+## Dominio: usa Pages, non Worker vuoto
+
+Lo screenshot “Domains & Routes” su un **Worker** non basta. Il sito deve essere il progetto **Pages** `wanda-mattia-ap` con custom domain `test.wandaemattia.com` (Workers & Pages → **Pages** → progetto → Custom domains).
+
+## Verifica
+
+Sorgente di https://test.wandaemattia.com/ → `wm-build` = `2026-05-15-deploy-root` e `hero-logo.svg` caricato.
 
 ## Album live (foto/video tra dispositivi)
 
