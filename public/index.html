@@ -9,6 +9,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Wanda & Mattia">
+  <meta name="wm-build" content="2026-05-14-b">
   <link rel="manifest" href="./manifest.json">
   <link rel="icon" href="./assets/icon-192.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./assets/icon-192.svg">
@@ -32,7 +33,14 @@
     .reveal.is-visible{opacity:1;transform:none}
     .hero{min-height:100svh;display:grid;place-items:center;text-align:center;position:relative;overflow:hidden;background:var(--color-bg)}
     .hero::before{content:"";position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E")}
-    .hero .wrap{position:relative;z-index:1}
+    .hero .wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:18px}
+    .hero-logo-wrap{
+      width:min(52vw,220px);height:min(52vw,220px);display:grid;place-items:center;
+      background:linear-gradient(155deg,#fff 0%,var(--color-surface) 100%);
+      border-radius:50%;border:1px solid var(--color-divider);
+      box-shadow:0 16px 48px rgba(44,26,14,.1);
+    }
+    .hero-logo{width:68%;height:68%;object-fit:contain;display:block}
     .hero h1{font-size:clamp(58px,12vw,132px);font-style:italic;letter-spacing:.22em;animation:closeSpace 2s ease forwards}
     @keyframes closeSpace{to{letter-spacing:.03em}}
     .hero-sub{letter-spacing:.1em;text-transform:uppercase;font-size:14px}
@@ -100,6 +108,9 @@
 
   <header class="hero" id="home">
     <div class="wrap">
+      <div class="hero-logo-wrap">
+        <img class="hero-logo" src="./assets/hero-logo.svg" width="200" height="200" alt="">
+      </div>
       <h1>Wanda &amp; Mattia</h1>
       <p class="hero-sub">27 Giugno 2026 · Otranto &amp; Lecce</p>
       <div class="count" aria-label="Countdown matrimonio">
@@ -119,6 +130,7 @@
   </nav>
 
   <main id="main">
+    <p id="syncHint" style="display:none;text-align:center;font-size:12px;color:var(--color-text-muted);margin:0;padding:8px 16px 0" aria-live="polite"></p>
     <section id="giornata" class="reveal">
       <div class="wrap">
         <div>
@@ -210,6 +222,7 @@
     <div class="wrap">
       <h2>Aggiornamenti live del giorno</h2>
       <p><a href="#home">Home</a> · <a href="#giornata">Giornata</a> · <a href="#media-live">Media</a> · <a href="#game">Game</a> · <a href="#admin">Admin</a></p>
+      <p class="meta" style="margin-top:14px;font-size:11px;letter-spacing:.04em">Build sito: 2026-05-14-b · hero con logo W&amp;M</p>
     </div>
   </footer>
   <div class="modal" id="mediaModal" aria-hidden="true">
@@ -230,7 +243,7 @@
     const toast=t=>{const el=$("#toast");el.textContent=t;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),1800)};
     let selectedMedia=null;
     if("serviceWorker" in navigator) window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js"));
-    window.addEventListener("DOMContentLoaded",()=>{cleanupLegacyStorage();lucide.createIcons();initCountdown();initReveal();initDay();initGift();initCalendar();initMedia();initGame();initAdmin();initModal();setInterval(()=>syncUi(false),5000);});
+    window.addEventListener("DOMContentLoaded",()=>{cleanupLegacyStorage();lucide.createIcons();initCountdown();initReveal();initDay();initGift();initCalendar();initMedia();initGame();initAdmin();initModal();initCloudSync();});
     window.addEventListener("storage",()=>syncUi(true));
 
     function cleanupLegacyStorage(){["wm_photos_v1","wm_audio_v1","wm_hero_photo_v1","wm_hero_video_v1","wm_game_v1","wm_game_v2","wm_game_v3","wm_game_v4"].forEach(k=>localStorage.removeItem(k));}
@@ -243,7 +256,7 @@
     function initCalendar(){const s="20260627T133000Z",e="20260628T000000Z",text=encodeURIComponent("Matrimonio Wanda & Mattia"),details=encodeURIComponent("Cerimonia a Otranto e ricevimento a Lecce"),loc=encodeURIComponent("Basilica di Otranto / Torre del Parco 1419, Lecce");$("#calBtn").href=`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&dates=${s}/${e}&details=${details}&location=${loc}`}
 
     function loadMedia(){return JSON.parse(localStorage.getItem(MEDIA_KEY)||"[]")}
-    function saveMedia(v){try{localStorage.setItem(MEDIA_KEY,JSON.stringify(v));return true;}catch{return false;}}
+    function saveMedia(v){try{localStorage.setItem(MEDIA_KEY,JSON.stringify(v));scheduleCloudPush();return true;}catch{return false;}}
     function isRecent(file){return Date.now()-file.lastModified<=window.APP.maxMediaAgeDays*24*60*60*1000}
     async function toDataUrl(file){return new Promise((r,j)=>{const f=new FileReader();f.onload=()=>r(f.result);f.onerror=j;f.readAsDataURL(file)})}
     function dataUrlToBlob(dataUrl){const [meta,b64]=dataUrl.split(",");const mime=(meta.match(/data:(.*?);base64/)||[])[1]||"application/octet-stream";const bytes=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));return new Blob([bytes],{type:mime})}
@@ -255,7 +268,18 @@
     function closeMediaModal(){$("#mediaModal").classList.remove("open");$("#mediaModal").setAttribute("aria-hidden","true");selectedMedia=null;}
 
     function loadStore(){return JSON.parse(localStorage.getItem(STORE_KEY)||'{"players":{},"submissions":[]}' )}
-    function saveStore(s){try{localStorage.setItem(STORE_KEY,JSON.stringify(s));return true;}catch{return false;}}
+    function saveStore(s){try{localStorage.setItem(STORE_KEY,JSON.stringify(s));scheduleCloudPush();return true;}catch{return false;}}
+    const API_LIVE="/api/live";
+    let cloudLive=false,cloudPushTimer=null;
+    async function apiPull(){try{const r=await fetch(API_LIVE,{cache:"no-store"});const j=await r.json();if(j.ok){cloudLive=true;return j;}cloudLive=false;return null;}catch{cloudLive=false;return null;}}
+    function applyCloudState(j){if(!j||!Array.isArray(j.media))return;try{localStorage.setItem(MEDIA_KEY,JSON.stringify(j.media));localStorage.setItem(STORE_KEY,JSON.stringify(j.store||{players:{},submissions:[]}));}catch(_){}}
+    function serverLooksEmpty(j){if(!j||!Array.isArray(j.media))return true;const m=j.media.length,p=Object.keys(j.store?.players||{}).length,s=(j.store?.submissions||[]).length;return m===0&&p===0&&s===0;}
+    function localLooksEmpty(){const m=loadMedia(),s=loadStore();return m.length===0&&Object.keys(s.players||{}).length===0&&(s.submissions||[]).length===0;}
+    function applyCloudStateSafe(j){if(!j||!Array.isArray(j.media))return;if(serverLooksEmpty(j)&&!localLooksEmpty()){scheduleCloudPush();return;}applyCloudState(j);}
+    async function apiPush(){try{const body={media:loadMedia(),store:loadStore()};const r=await fetch(API_LIVE,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body),cache:"no-store"});const j=await r.json();if(j&&j.ok){cloudLive=true;applyCloudState(j);}}catch(_){}}
+    function scheduleCloudPush(){clearTimeout(cloudPushTimer);cloudPushTimer=setTimeout(()=>{apiPush().then(()=>syncUi(true));},350);}
+    function updateSyncHint(){const el=$("#syncHint");if(!el)return;if(cloudLive){el.style.display="block";el.textContent="Sync live tra dispositivi attiva";}else{el.style.display="none";el.textContent="";}}
+    async function initCloudSync(){const j=await apiPull();if(j&&j.ok){applyCloudStateSafe(j);syncUi(true);}updateSyncHint();setInterval(async()=>{const j2=await apiPull();if(j2&&j2.ok){applyCloudStateSafe(j2);syncUi(true);updateSyncHint();}},1800);setInterval(()=>syncUi(false),8000);}
     function getCurrentPlayerKey(){return localStorage.getItem(CURRENT_PLAYER_KEY)||""}
     function setCurrentPlayerKey(k){localStorage.setItem(CURRENT_PLAYER_KEY,k)}
     function normalizeName(n){return n.trim().toLowerCase().replace(/\s+/g," ")}
