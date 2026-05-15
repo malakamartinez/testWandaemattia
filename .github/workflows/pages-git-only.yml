@@ -1,0 +1,25 @@
+# Deploy automatico via Cloudflare Pages "Connect to Git" (nessun API token in GitHub).
+# Abilita in Dashboard: Workers & Pages → wanda-mattia-ap → Settings → Builds → Connect to Git
+#   Repository: malakamartinez/testWandaemattia
+#   Production branch: main
+#   Build output directory: public
+
+name: Verify site files (Pages Git deploys on push)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check required paths
+        run: |
+          test -f public/index.html
+          test -f functions/api/live.js
+          test -f wrangler.toml
+          grep -q "wm-build" public/index.html
+          echo "OK: push su main → Cloudflare Pages (Git) deve fare il deploy su test.wandaemattia.com"

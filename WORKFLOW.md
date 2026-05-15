@@ -11,16 +11,27 @@ Modificare **solo** file sotto `~/testWandaemattia/public/` (e `functions/` alla
 
 **Non** usare `.cursor/projects/.../wanda-mattia-wedding` (cartella interna Cursor): non è collegata al deploy.
 
-## Deploy automatico
+## Deploy automatico (scegli una strada)
+
+### A) Consigliata: Pages collegato a GitHub (senza token in Actions)
+
+1. Dashboard → **Pages** → `wanda-mattia-ap` → **Settings** → **Builds** → **Connect to Git**
+2. Repo `malakamartinez/testWandaemattia`, branch `main`, cartella output **`public`**
+3. Ogni `git push origin main` → deploy su `test.wandaemattia.com` (workflow verde: `pages-git-only.yml`)
+
+### B) Wrangler da GitHub Actions (serve token con permessi)
+
+Se in Actions vedi **Authentication error 10000** o **9106**, il token non va bene.  
+Crea un token nuovo seguendo **`docs/CLOUDFLARE_API_TOKEN.md`**, aggiorna i secret GitHub, poi in Actions lancia manualmente **Deploy via Wrangler (manual)**.
+
+### Comando locale
 
 ```bash
 cd ~/testWandaemattia
 npm run deploy
 ```
 
-Fa `git push origin main` e, se hai `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` in shell, anche `wrangler pages deploy .` (produzione `main`).
-
-**Importante:** il deploy deve partire dalla **root del repo** (`.`), non solo da `./public`, altrimenti le **Functions** (`/api/live`, upload R2) non vengono pubblicate.
+**Importante:** deploy da **root** (`.`), non solo `./public`, così restano le **Functions** (`/api/live`, upload R2).
 
 Hook Cursor (opzionale): `.cursor/hooks.json` esegue `scripts/deploy.sh` a fine task agente.
 

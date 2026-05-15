@@ -19,13 +19,18 @@ else
 fi
 
 if [ -n "${CLOUDFLARE_API_TOKEN:-}" ] && [ -n "${CLOUDFLARE_ACCOUNT_ID:-}" ]; then
-  echo "==> wrangler pages deploy (immediato, non attendere Git)"
-  npx --yes wrangler@4.90.1 pages deploy . \
-    --project-name=wanda-mattia-ap \
-    --branch=main \
-    --commit-dirty=true
+  echo "==> wrangler whoami (test token)"
+  if npx --yes wrangler@4.90.1 whoami 2>/dev/null; then
+    echo "==> wrangler pages deploy"
+    npx --yes wrangler@4.90.1 pages deploy . \
+      --project-name=wanda-mattia-ap \
+      --branch=main \
+      --commit-dirty=true
+  else
+    echo "WARN: token Cloudflare non valido. Solo push Git. Vedi docs/CLOUDFLARE_API_TOKEN.md"
+  fi
 else
-  echo "==> Solo push Git (Pages CI). Per deploy immediato: export CLOUDFLARE_API_TOKEN e CLOUDFLARE_ACCOUNT_ID"
+  echo "==> Solo push Git → Pages 'Connect to Git' deploya (se collegato in Dashboard)"
 fi
 
 echo "OK. Verifica: https://test.wandaemattia.com/ (cerca wm-build nel sorgente)"
